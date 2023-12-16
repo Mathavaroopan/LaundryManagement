@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .option-select {
+            margin-bottom: 20px;
+        }
+
+        #user-option {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .card-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            width: 200px;
+            margin: 10px;
+            padding: 15px;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .card img {
+            height: 200px;
+            width: 200px;
+        }
+
+        .count-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .count-btn {
+            margin: 0 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+        }
+
+        #submit-btn {
+            padding: 10px 22px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <div class="option-select">
+            <label for="user-option">Select User: </label>
+            <select id="user-option">
+                <!-- Add user options here -->
+                <option value="-" selected>-</option>
+                <option value="1">Mathavaroopan</option>
+                <option value="2">Ujwal</option>
+                <option value="3">User 3</option>
+            </select>
+        </div>
+
+        <div class="card-container">
+            <div class="card" id="shirt-card">
+                <img src="shirt.jpg" alt="Shirt Image">
+                <h2>Shirt</h2>
+                <div class="count-container">
+                    <button class="count-btn" onclick="changeCount('shirt', -1)">-</button>
+                    <span id="shirt-count">0</span>
+                    <button class="count-btn" onclick="changeCount('shirt', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="card" id="tshirt-card">
+                <img src="tshirt.jfif" alt="Tshirt Image">
+                <h2>Tshirt</h2>
+                <div class="count-container">
+                    <button class="count-btn" onclick="changeCount('tshirt', -1)">-</button>
+                    <span id="tshirt-count">0</span>
+                    <button class="count-btn" onclick="changeCount('tshirt', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="card" id="pant-card">
+                <img src="pant.jfif" alt="Pant Image">
+                <h2>Pant</h2>
+                <div class="count-container">
+                    <button class="count-btn" onclick="changeCount('pant', -1)">-</button>
+                    <span id="pant-count">0</span>
+                    <button class="count-btn" onclick="changeCount('pant', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="card" id="bedsheet-card">
+                <img src="bedsheet.jfif" alt="Bedsheet Image">
+                <h2>Bedsheet</h2>
+                <div class="count-container">
+                    <button class="count-btn" onclick="changeCount('bedsheet', -1)">-</button>
+                    <span id="bedsheet-count">0</span>
+                    <button class="count-btn" onclick="changeCount('bedsheet', 1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <button id="submit-btn" onclick="submitOrder()">Submit Order</button>
+    </main>
+
+    <script>
+        // Function to change the count for a specific item
+        function changeCount(item, value) {
+            const countElement = document.getElementById(`${item}-count`);
+            let count = parseInt(countElement.innerText) + value;
+
+            // Ensure the count is not negative
+            count = count < 0 ? 0 : count;
+
+            countElement.innerText = count;
+        }
+
+        // Function to submit the order
+        function submitOrder() {
+            // Retrieve counts for each item
+            const shirtCount = parseInt(document.getElementById('shirt-count').innerText);
+            const tshirtCount = parseInt(document.getElementById('tshirt-count').innerText);
+            const pantCount = parseInt(document.getElementById('pant-count').innerText);
+            const bedsheetCount = parseInt(document.getElementById('bedsheet-count').innerText);
+
+            // You can use these counts to perform further actions (e.g., send to server)
+            console.log('Shirt Count:', shirtCount);
+            console.log('Tshirt Count:', tshirtCount);
+            console.log('Pant Count:', pantCount);
+            console.log('Bedsheet Count:', bedsheetCount);
+
+            // Add your logic here to handle the order submission
+        }
+    </script>
+
+</body>
+</html>
