@@ -4,15 +4,19 @@ The system is designed to have two login pages—one for the laundry service man
 
 Customer Actions:
 
-Place an order specifying different types of clothes.
-Complete a transaction while placing the order for it to be accepted.
-View a list of their placed orders.
+    Place an order specifying different types of clothes.
+    Complete a transaction while placing the order for it to be accepted.
+    View a list of their placed orders.
+
+
 Laundry Manager Actions:
 
-View all orders.
-Search for orders using customer usernames.
-View orders within a specified date range, including last week and last month.
-Send messages to specific customers whose clothes have been laundered.
-Send a common message to all customers, e.g., informing them of the unavailability of laundry services today due to rain.
-After delivering an order, remove the order from the specific customer's order variable.
+    View all orders.
+    Search for orders using customer usernames.
+    View orders within a specified date range, including last week and last month.
+    Send messages to specific customers whose clothes have been laundered.
+    Send a common message to all customers, e.g., informing them of the unavailability of laundry services today due to rain.
+    After delivering an order, remove the order from the specific customer's order variable.
+
+
 To implement these functionalities, standard design patterns such as singleton, observer, strategy, decorator, template, iterator, comprehension, and generator will be utilized. These patterns contribute to the system's modularity, extensibility, and maintainability, adhering to best practices in software design.
