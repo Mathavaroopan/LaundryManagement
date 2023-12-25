@@ -1,7 +1,58 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Dict
+import pickle
 
+class Message:
+    def __init__(self, message, username = 'All') -> None:
+        self.username = username
+        self.message = message
+        self.date = datetime.now()
+        
+    def __repr__(self) -> str:
+        return f"\nUsername: {self.username}\nMessage: {self.message}\nTime: {self.date}"
+    
+def save_user(user):
+    with open('users.pkl', 'ab') as file:
+        pickle.dump(user, file)
+        
+def save_all_users(ls):
+    with open('users.pkl', 'wb') as file:
+        for user in ls:
+            pickle.dump(user, file)
+
+def load_users():
+    try:
+        with open('users.pkl', 'rb') as file:
+            users = []
+            while True:
+                try:
+                    user = pickle.load(file)
+                    users.append(user)
+                except EOFError:
+                    break
+    except FileNotFoundError:
+        users = []
+    return users
+
+names = []
+def update_all(message):
+        global names
+        new_ls = []
+        try:
+            with open('users.pkl', 'rb') as file:
+                while True:
+                    try:
+                        u = pickle.load(file)
+                        names.append(u.username)
+                        u.messages.append(message)
+                        new_ls.append(u)
+                    except EOFError:
+                        break
+        except FileNotFoundError:
+            pass    
+        save_all_users(new_ls)
+        
 # Singleton Pattern
 class LaundryManager:
     _instance = None
@@ -9,32 +60,90 @@ class LaundryManager:
     def __new__(cls):
         if not cls._instance:
             cls._instance = super(LaundryManager, cls).__new__(cls)
+            cls._instance.pending_orders = []
             cls._instance.orders = []
             cls._instance.customers = []
+            cls._instance.cloth_prices = {"Shirt": 7, "Tshirt": 5, "Pant": 20, "Bedsheet": 40}
         return cls._instance
 
+    def add_order(self, order):
+        with open('orders.pkl', 'ab') as file:
+            pickle.dump(order, file)
+        
+    def get_all_orders(self):
+        try:
+            with open('orders.pkl', 'rb') as file:
+                orders = []
+                while True:
+                    try:
+                        order = pickle.load(file)
+                        orders.append(order)
+                    except EOFError:
+                        break
+        except FileNotFoundError:
+            orders = []
+        return orders
+        
+    def get_all_orders_by_username(self, name):
+        try:
+            with open('orders.pkl', 'rb') as file:
+                orders = []
+                while True:
+                    try:
+                        order = pickle.load(file)
+                        if order.customer.username == name:
+                            orders.append(order)
+                    except EOFError:
+                        break
+        except FileNotFoundError:
+            orders = []
+        return orders
+    
     def register(self, customer):
         self._instance.customers.append(customer)
- 
-    def notify_all(self, message, done=False):
-        for customer in self._instance.customers:
-            customer.update(message, done)
+        save_user(customer)
+
+    def notify_all(self, message):
+        update_all(message)
+
+    def notify(self, customer, message):
+        customer.update(message)
 
 # Observer Pattern
 class Observer(ABC):
     @abstractmethod
-    def update(self, message, done):
+    def update(self, message):
         pass
 
 class Customer(Observer):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, username, password, address, phone):
+        self.username = username
+        self.password = password
+        self.address = address
+        self.phone = phone
+        self.messages = []
+        self.pending_orders = []
         self.orders = []
-        self.done = False
-
-    def update(self, message, done=False):
-        print(f"Message: {message}")
-        self.done = done
+    
+    def update(self, message):
+        new_ls = []
+        try:
+            with open('users.pkl', 'rb') as file:
+                while True:
+                    try:
+                        u = pickle.load(file)
+                        if self.username == u.username:
+                            u.messages.append(message)
+                        new_ls.append(u)
+                    except EOFError:
+                        break
+        except FileNotFoundError:
+            pass    
+        save_all_users(new_ls)
+    
+    
+    def __repr__(self) -> str:
+        return f"\nUsername: {self.username}\nPassword: {self.password}\nAddress: {self.address}\nPhone: {self.phone}\nMessages:{self.messages}"
 
 # Strategy Pattern
 class PaymentStrategy(ABC):
@@ -42,35 +151,13 @@ class PaymentStrategy(ABC):
     def make_payment(self, amount):
         pass
 
-class CreditCardPayment(PaymentStrategy):
+class UPIPayment(PaymentStrategy):
     def make_payment(self, amount):
-        print(f"Paid ${amount} using a credit card.")
+        print(f"Paid ${amount} using a UPI.")
 
 class CashPayment(PaymentStrategy):
     def make_payment(self, amount):
         print(f"Paid ${amount} in cash.")
-
-# Decorator Pattern
-class Order(ABC):
-    @abstractmethod
-    def generate_slip(self):
-        pass
-
-class BasicSlip(Order):
-    def __init__(self, order):
-        self._order = order
-
-    def generate_slip(self):
-        return f"Order ID: {self._order.order_id}, Customer: {self._order.customer.name}, Total Cost: ${self._order.cost}"
-
-class SpecialSlip(Order):
-    def __init__(self, order_decorator, additional_info):
-        self._order_decorator = order_decorator
-        self._additional_info = additional_info
-
-    def generate_slip(self):
-        base_slip = self._order_decorator.generate_slip()
-        return f"{base_slip}, Additional Info: {self._additional_info}"
 
 # Template Pattern
 class Order(ABC):
@@ -78,82 +165,106 @@ class Order(ABC):
     def process_order(self):
         pass
 
+    @abstractmethod
+    def generate_slip(self):
+        pass
+
 class LaundryOrder(Order):
-    def __init__(self, customer, clothes, payment_strategy):
-        self.order_id = datetime.now().strftime("%Y%m%d%H%M%S")
-        self.customer = customer
-        self.clothes = clothes
+    def __init__(self, order_data: Dict, payment_strategy):
+        self.customer = order_data.get('username')
+        self.cloth_orders = {
+            'Shirt': order_data.get('Shirt', (0, '')),
+            'Tshirt': order_data.get('Tshirt', (0, '')),
+            'Pant': order_data.get('Pant', (0, '')),
+            'Bedsheet': order_data.get('Bedsheet', (0, ''))
+        }
+        ls = []
+        for k in self.cloth_orders:
+            if self.cloth_orders[k][0] == 0:
+                ls.append(k)
+        
+        for i in ls:
+            del self.cloth_orders[i]
+                
         self.payment_strategy = payment_strategy
         self.cost = self.calculate_cost()
-        self.delivery_date = datetime.now() + timedelta(days=3)
+        self.order_date = order_data['order_date']
+        self.delivery_date = order_data['delivery_date']
+        self.process_order()
 
     def calculate_cost(self):
-        # Calculate cost based on clothes and laundry type
-        return len(self.clothes) * 5
+        # Calculate cost based on cloth types and their prices
+        total_cost = sum(count * LaundryManager()._instance.cloth_prices.get(cloth, 0) for cloth, (count, _) in self.cloth_orders.items())
+        return total_cost
 
     def process_order(self):
         self.payment_strategy.make_payment(self.cost)
-        basic_slip = BasicSlip(self)
-        additional_info_slip = SpecialSlip(basic_slip, "Express Service")
-        slip = additional_info_slip.generate_slip()
+        slip = self.generate_slip()
         print(f"Transaction Successful! {slip}")
-        self.customer.update(f"Your order with ID {self.order_id} is ready for delivery.", True)
         self.customer.orders.append(self)
-        LaundryManager()._instance.orders.append(self)
+        LaundryManager().add_order(self)
 
-# Iterator Pattern
-class OrderIterator:
-    def __init__(self, orders):
-        self._orders = orders
-        self._index = 0
+    def generate_slip(self):
+        cloth_details = "\n".join(f"{cloth}: {count * LaundryManager()._instance.cloth_prices.get(cloth, 0)} rupees" for cloth, (count, _) in self.cloth_orders.items())
+        return f"\nUsername: {self.customer}\nClothes:\n{self.cloth_orders}\nCost: {self.cost}\n"
 
-    def __iter__(self):
-        return self
+    def __repr__(self):
+        return f"\n{self.customer}\nClothes:\n{self.cloth_orders}\nCost: {self.cost}\nOrder_date: {self.order_date}\nDelivery_date: {self.delivery_date}"
 
-    def __next__(self):
-        if self._index < len(self._orders):
-            order = self._orders[self._index]
-            self._index += 1
-            return order
-        else:
-            raise StopIteration
+# if __name__ == '__main__':
+#     # Create a LaundryManager instance
+#     laundry_manager = LaundryManager()
 
-# Comprehension Pattern
-def get_orders_by_username(username):
-    return [order for order in LaundryManager()._instance.orders if order.customer.name == username]
+#     # Create some customers
+#     customer1 = Customer(username="Mathavaroopan", password="passPass123", address="123 Main St", phone="1234567890")
+#     customer2 = Customer(username="Mathesh", password="passPass321", address="456 Oak St", phone="0987654321")
 
-# Generator Pattern
-def generate_reports(start_date, end_date):
-    return (order for order in LaundryManager()._instance.orders
-            if start_date <= order.delivery_date <= end_date)
+#     # Register customers with the LaundryManager
+#     laundry_manager.register(customer1)
+#     laundry_manager.register(customer2)
 
-# Usage example
-customer1 = Customer("John Doe")
-manager = LaundryManager()._instance
-manager.register(customer1)
+#     # Create a UPI payment strategy
+#     upi_payment = UPIPayment()
 
-clothes_order = ["Shirt", "Pants", "Socks"]
-credit_card_payment = CreditCardPayment()
+#     mathavaroopan = None
+#     mathesh = None
+#     for user in load_users():
+#         if user.username == 'Mathavaroopan':
+#             mathavaroopan = user
+#         if user.username == 'Mathesh':
+#             mathesh = user
+            
+#     # Create a laundry order for Mathavaroopan
+#     order_data_mathavaroopan = {'username': mathavaroopan, 'Shirt': (2, 'Blue'), 'Tshirt': (3, 'Red'),
+#                                 'order_date': datetime.now(), 'delivery_date': datetime.now() + timedelta(days=3)}
+#     order_mathavaroopan = LaundryOrder(order_data_mathavaroopan, upi_payment)
 
-# Customer places an order and makes a transaction
-order1 = LaundryOrder(customer1, clothes_order, credit_card_payment)
-order1.process_order()
+#     # Create a Cash payment strategy
+#     cash_payment = CashPayment()
 
-# Manager sends a message to the customer
-manager.notify_all("Laundry service won't be available today due to rain.")
+#     # Create a laundry order for Mathesh
+#     order_data_mathesh = {'username': mathesh, 'Pant': (1, 'Black'), 'Bedsheet': (2, 'White'),
+#                         'order_date': datetime.now(), 'delivery_date': datetime.now() + timedelta(days=2)}
+#     order_mathesh = LaundryOrder(order_data_mathesh, cash_payment)
 
-# Manager views all orders and searches by username
-print("All Orders:")
-for order in OrderIterator(manager.orders):
-    print(order.order_id, order.customer.name, order.delivery_date)
+#     # Display all orders for Mathavaroopan
+#     mathavaroopan_orders = laundry_manager.get_all_orders_by_username("Mathavaroopan")
+#     print("Mathavaroopan's Orders:")
+#     for order in mathavaroopan_orders:
+#         print(order)
 
-print("\nOrders by Username:")
-for order in get_orders_by_username("John Doe"):
-    print(order.order_id, order.delivery_date)
+#     # Display all orders for Mathesh
+#     mathesh_orders = laundry_manager.get_all_orders_by_username("Mathesh")
+#     print("\nMathesh's Orders:")
+#     for order in mathesh_orders:
+#         print(order)
 
-# Manager generates reports for the last week
-end_date = datetime.now()
-start_date = end_date - timedelta(days=7)
-print("\nReports for the Last Week:")
-for order in generate_reports(start_date, end_date):
-    print(order.order_id, order.delivery_date)
+#     # Notify all customers with a message
+#     message = Message("Laundry processing is complete!")
+#     laundry_manager.notify_all(message)
+
+#     for user in load_users():
+#         print(f"{user.username}\n{user.messages}" )
+
+
+

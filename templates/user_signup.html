@@ -54,11 +54,13 @@
             <link rel="stylesheet" href="{{ url_for('static', filename='userlogin.css') }}">
         </form>
     </div>
-
-    <script>
-        function validateForm() {
-            return true;
-        }
-    </script>
+    {% if error %}
+            <script>
+                function showAlert() {
+                    alert("Invalid format.\nUsername should contain only lowercase, uppercase letters, numbers and underscores. It should be of length between 3 and 20.\nPassword must contain one lowercase letter, one uppercase letter, one number\nPhone number must contain only 10 digits")
+                }
+                showAlert();
+            </script>
+    {% endif %}
 </body>
 </html>

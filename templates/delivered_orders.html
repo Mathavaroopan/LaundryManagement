@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        main {
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            width: 250px;
+            height: 350px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        nav {
+            background-color: #007bff;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <nav>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('pending_orders') }}">Current Orders</a>
+            <a href="{{ url_for('delivered_orders') }}">Delivered Orders</a>
+            <a href="{{ url_for('send_notification') }}">Send Notification</a>
+            <a href="{{ url_for('notification') }}">Notifications</a>
+        </nav>
+
+        <div class="card-container">
+            <!-- Loop through user's orders and create a card for each -->
+            {% for order in user_orders %}
+                <div class="card">
+                    <h3 style="color: #007bff;">Ordered Items</h3>
+                    <h5 style="color: #007bff;">{{ order.customer.username }}</h5>
+                    <ul>
+                        <!-- Loop through cloth orders and display details -->
+                        {% for cloth, details in order.cloth_orders.items() %}
+                            <li style="color: #333;">{{ cloth }} - {{ details[0] }} pieces, Type: {{ details[1] }}</li>
+                        {% endfor %}
+                    </ul>
+                    <p style="color: #555;">Total Cost: {{ order.cost }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <script>
+        function deliverOrder(order_date) {
+            // Make an AJAX request to the Flask endpoint for delivery
+            fetch('/deliver', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order_date: order_date }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server (if needed)
+                console.log(data);
+                
+                // You can add logic here to display a confirmation message or update the UI
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+    
+</body>
+</html>

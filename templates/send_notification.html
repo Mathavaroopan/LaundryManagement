@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        nav {
+            background-color: #007bff;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #0056b3;
+        }
+
+        .content-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .notification-container {
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 30px;
+            width: 400px;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .user-select,
+        .notification-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .send-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .send-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('pending_orders') }}">Current Orders</a>
+        <a href="{{ url_for('delivered_orders') }}">Delivered Orders</a>
+        <a href="{{ url_for('send_notification') }}">Send Notification</a>
+        <a href="{{ url_for('notification') }}">Notifications</a>
+    </nav>
+
+    <div class="content-container">
+        <div class="notification-container">
+            <label for="user-select" style="font-weight: bold;">Select User:</label>
+            <select id="user-select" class="user-select">
+                {% for username in usernames %}
+                    <option value="{{ username }}">{{ username }}</option>
+                {% endfor %}
+            </select>
+    
+            <label for="notification-text" style="font-weight: bold;">Type your notification:</label>
+            <textarea id="notification-text" class="notification-input" rows="6" placeholder="Enter your notification here..."></textarea>
+            <button class="send-button" onclick="sendNotification()">Send Notification</button>
+        </div>
+    </div>
+
+    <script>
+        function sendNotification() {
+            var notificationText = document.getElementById('notification-text').value;
+            var selectedUsername = document.getElementById('user-select').value;
+
+            // Make an AJAX request to the Flask endpoint
+            fetch('/handle_notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: notificationText, username: selectedUsername }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server (if needed)
+                console.log(data);
+                
+                // You can add logic here to display a confirmation message or redirect the user
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
