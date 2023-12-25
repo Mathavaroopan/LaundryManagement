@@ -1,18 +1,18 @@
-4. A small scale laundry service provider wants to develop a system to maintain their customer
-details. Laundryservice should be able to create/view/update their customer details in the system. The
-system should generate a transaction slip with a unique ID when a customer deposits clothes
-for laundering. The slip should contain details such as type of each cloth, the type of laundry
-required, cost, and delivery date. A transaction
-should be closed when a customer makes the payment. The
-service provider should be able to generate daily/weekly/monthly reports.
+A small-scale laundry service provider aims to develop a system for maintaining customer details. The laundry service system should facilitate the creation, viewing, and updating of customer information. When a customer deposits clothes for laundering, the system is expected to generate a unique transaction slip with details such as cloth types, laundry requirements, cost, and delivery date. A transaction is considered closed when a customer completes the payment.
 
-we will have two login pages. one for the laundry service manager and the other one is for the customer.
-these are the functions that can happen
-customer gives an order that contains different types of cloths
-while giving the order, the customer should make a transaction. then only the order should get accepted.
-the customer should be able to see what are the orders he's given
-the laundry manager should be able to see all the orders and he should be able to search using user-name as well and he should also be able to see the orders from start date to end date and last month and last week
-the laundry manager should be able to send a message to the specific customer whose clothes have been washed. and the manager should also be able to send a message common message to all the customers like today laundry service won't be available due to rain.
-after delivering the order, in the specific customer object's order varibale, the order should be removed
+The system is designed to have two login pages—one for the laundry service manager and another for the customer. The following functionalities are expected:
 
-we must use standard design patterns such as singleton, observer, strategy, decorator, template, iterator, comprehension, generator and many more patterns
+Customer Actions:
+
+Place an order specifying different types of clothes.
+Complete a transaction while placing the order for it to be accepted.
+View a list of their placed orders.
+Laundry Manager Actions:
+
+View all orders.
+Search for orders using customer usernames.
+View orders within a specified date range, including last week and last month.
+Send messages to specific customers whose clothes have been laundered.
+Send a common message to all customers, e.g., informing them of the unavailability of laundry services today due to rain.
+After delivering an order, remove the order from the specific customer's order variable.
+To implement these functionalities, standard design patterns such as singleton, observer, strategy, decorator, template, iterator, comprehension, and generator will be utilized. These patterns contribute to the system's modularity, extensibility, and maintainability, adhering to best practices in software design.
