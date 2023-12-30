@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delivered Orders</title>
+    <title>Current Orders</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -71,6 +71,7 @@
             background-color: #0056b3;
         }
 
+        /* Add this style for the dropdown */
         .dropdown {
             display: inline-block;
         }
@@ -106,7 +107,6 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
-
     </style>
 </head>
 <body>
@@ -119,6 +119,7 @@
             <a href="{{ url_for('send_notification') }}">Send Notification</a>
             <a href="{{ url_for('notification') }}">Notifications</a>
 
+            <!-- Add this dropdown for selecting the report type -->
             <div class="dropdown">
                 <button class="dropbtn">Reports</button>
                 <div class="dropdown-content">
@@ -127,7 +128,6 @@
                     <a href="{{ url_for('get_report', report_type='yearly') }}">Yearly</a>
                 </div>
             </div>
-            
         </nav>
 
         <div class="card-container">
@@ -147,29 +147,24 @@
             {% endfor %}
         </div>
     </main>
-
     <script>
-        function deliverOrder(order_date) {
-            // Make an AJAX request to the Flask endpoint for delivery
-            fetch('/deliver', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ order_date: order_date }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Handle the response from the server (if needed)
-                console.log(data);
-                
-                // You can add logic here to display a confirmation message or update the UI
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+        function getReport() {
+            var reportType = document.getElementById("reportType").value;
+
+            // Make an asynchronous request to the Flask route
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/get_report/' + reportType, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Update the content of the card-container div
+                    document.getElementById("card-container").innerHTML = xhr.responseText;
+                }
+            };
+
+            xhr.send();
         }
     </script>
-    
+
 </body>
 </html>

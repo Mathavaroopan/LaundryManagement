@@ -36,7 +36,9 @@ def user_login():
     username = request.form['username']
     password = request.form['password']
     print(f'Login - Username: {username}, Password: {password}')
-    
+    for user in load_users():
+        if user.username == username:
+            print("password : ", user.password)
     for user in load_users():
         if user.username == username and user.password == password:
             user_orders = []
@@ -130,6 +132,7 @@ def u_delivered_orders():
 def u_notification():
     global username
     notifications = []
+    
     for user in load_users():
         if user.username == username:
             notifications = user.messages

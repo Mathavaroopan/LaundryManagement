@@ -140,6 +140,29 @@ def deliver():
     return render_template('current_orders.html', user_orders = orders)
 
 
+@app.route('/get_report/<report_type>')
+def get_report(report_type):
+    laundry_manager = LaundryManager()
+    
+    if report_type == 'daily':
+        # Get daily orders for today
+        from datetime import datetime
+        today = datetime.now().date()
+        daily_orders = laundry_manager.get_daily_orders(today)
+        return render_template('report.html', user_orders=daily_orders)
+    elif report_type == 'monthly':
+        from datetime import datetime
+        current_year = datetime.now().year
+        current_month = datetime.now().month
+        monthly_orders = laundry_manager.get_monthly_orders(current_year, current_month)
+        return render_template('report.html', user_orders=monthly_orders)
+    else:
+        from datetime import datetime
+        current_year = datetime.now().year
+        yearly_orders = laundry_manager.get_yearly_orders(current_year)
+        return render_template('report.html', user_orders=yearly_orders)
+
+
 print([order.order_date for order in LaundryManager()._instance.get_all_orders()])
 
 if __name__ == '__main__':

@@ -108,6 +108,51 @@ class LaundryManager:
 
     def notify(self, customer, message):
         customer.update(message)
+        
+    def get_daily_orders(self, date):
+        try:
+            with open('orders.pkl', 'rb') as file:
+                orders = []
+                while True:
+                    try:
+                        order = pickle.load(file)
+                        if order.order_date.date() == date:
+                            orders.append(order)
+                    except EOFError:
+                        break
+        except FileNotFoundError:
+            orders = []
+        return orders
+
+    def get_monthly_orders(self, year, month):
+        try:
+            with open('orders.pkl', 'rb') as file:
+                orders = []
+                while True:
+                    try:
+                        order = pickle.load(file)
+                        if order.order_date.year == year and order.order_date.month == month:
+                            orders.append(order)
+                    except EOFError:
+                        break
+        except FileNotFoundError:
+            orders = []
+        return orders
+
+    def get_yearly_orders(self, year):
+        try:
+            with open('orders.pkl', 'rb') as file:
+                orders = []
+                while True:
+                    try:
+                        order = pickle.load(file)
+                        if order.order_date.year == year:
+                            orders.append(order)
+                    except EOFError:
+                        break
+        except FileNotFoundError:
+            orders = []
+        return orders
 
 # Observer Pattern
 class Observer(ABC):
@@ -211,6 +256,8 @@ class LaundryOrder(Order):
     def __repr__(self):
         return f"\n{self.customer}\nClothes:\n{self.cloth_orders}\nCost: {self.cost}\nOrder_date: {self.order_date}\nDelivery_date: {self.delivery_date}"
 
+
+
 # if __name__ == '__main__':
 #     # Create a LaundryManager instance
 #     laundry_manager = LaundryManager()
@@ -266,5 +313,26 @@ class LaundryOrder(Order):
 #     for user in load_users():
 #         print(f"{user.username}\n{user.messages}" )
 
+# if __name__ == '__main__':
 
+#     laundry_manager = LaundryManager()
+#     # Get daily orders for today
+#     today = datetime.now().date()
+#     daily_orders = laundry_manager.get_daily_orders(today)
+#     print(f"\nDaily Orders ({today}):")
+#     for order in daily_orders:
+#         print(order)
 
+#     # Get monthly orders for the current year and month
+#     current_year = datetime.now().year
+#     current_month = datetime.now().month
+#     monthly_orders = laundry_manager.get_monthly_orders(current_year, current_month)
+#     print(f"\nMonthly Orders ({current_year}-{current_month}):")
+#     for order in monthly_orders:
+#         print(order)
+
+#     # Get yearly orders for the current year
+#     yearly_orders = laundry_manager.get_yearly_orders(current_year)
+#     print(f"\nYearly Orders ({current_year}):")
+#     for order in yearly_orders:
+#         print(order)

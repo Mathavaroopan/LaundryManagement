@@ -123,6 +123,42 @@
             background-color: #0056b3;
         }
 
+        .dropdown {
+            display: inline-block;
+        }
+
+        .dropbtn {
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #007bff;
+            text-decoration: none;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
     </style>
 </head>
 <body>
@@ -132,6 +168,16 @@
         <a href="{{ url_for('delivered_orders') }}">Delivered Orders</a>
         <a href="{{ url_for('send_notification') }}">Send Notification</a>
         <a href="{{ url_for('notification') }}">Notifications</a>
+
+        <div class="dropdown">
+            <button class="dropbtn">Reports</button>
+            <div class="dropdown-content">
+                <a href="{{ url_for('get_report', report_type='daily') }}">Daily</a>
+                <a href="{{ url_for('get_report', report_type='monthly') }}">Monthly</a>
+                <a href="{{ url_for('get_report', report_type='yearly') }}">Yearly</a>
+            </div>
+        </div>
+        
     </nav>
     
     <main>
